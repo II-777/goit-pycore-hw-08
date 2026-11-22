@@ -133,13 +133,6 @@ class Record:
         return line
 
 
-def _next_workday(day: date) -> date:
-    """Суботу і неділю переносить на найближчий понеділок."""
-    if day.weekday() >= 5:
-        return day + timedelta(days=7 - day.weekday())
-    return day
-
-
 class AddressBook(UserDict):
     """Книга контактів. Ключ: ім'я, значення: Record."""
 
@@ -154,6 +147,13 @@ class AddressBook(UserDict):
     def delete(self, name):
         """Видаляє запис за ім'ям."""
         del self.data[name]
+
+    @staticmethod
+    def _next_workday(day: date) -> date:
+        """Суботу і неділю переносить на найближчий понеділок."""
+        if day.weekday() >= 5:
+            return day + timedelta(days=7 - day.weekday())
+        return day
 
     def get_upcoming_birthdays(self, days=7):
         """Повертає привітання на сьогодні і наступні 7 днів.
@@ -170,7 +170,7 @@ class AddressBook(UserDict):
             if birthday < today:
                 birthday = record.birthday.data.replace(year=today.year + 1)
             if 0 <= (birthday - today).days <= days:
-                congratulation = _next_workday(birthday)
+                congratulation = self._next_workday(birthday)
                 upcoming.append({
                     "name": record.name.value,
                     "birthday": congratulation.strftime("%d.%m.%Y"),
